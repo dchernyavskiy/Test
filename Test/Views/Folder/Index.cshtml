@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@model Folder
+
+@{
+    ViewBag.Title = "title";
+    Layout = null;
+}
+
+<style>
+    .flex{
+    display: flex;
+    }
+    .flex-column{
+    flex-direction: column;
+    }
+</style>
+
+<h1>@Model!.Name</h1>
+<div class="flex flex-column ">
+    @foreach (var folder in Model.Children)
+    {
+        <a href="@Context.Request.GetDisplayUrl()/@folder.Name">@folder.Name</a>
+    }
+</div>
