@@ -9,6 +9,7 @@ using Test.Data.Seeders;
 using Test.Extensions;
 using Test.Services;
 using Test.Services.Contracts;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,11 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    });
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration(nameof(PostgresOptions));
 builder.Services.AddSingleton<PostgresOptions>(x => x.GetRequiredService<IOptions<PostgresOptions>>().Value);
 builder.Services.AddDbContext<ITestDbContext, TestDbContext>((sp, options) =>
@@ -63,10 +68,25 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.MapControllerRoute(
+    name: "export",
+    pattern: "Export",
+    new { controller = "Folder", action = "Export" });
+
+app.MapControllerRoute(
+    name: "ImportFromOS",
+    pattern: "ImportFromOS",
+    new { controller = "Folder", action = "ImportFromOs" });
+
+app.MapControllerRoute(
+    name: "ImportFromFile",
+    pattern: "ImportFromFile",
+    new { controller = "Folder", action = "ImportFromFile" });
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{*segments}",
     new { controller = "Folder", action = "Index" });
+
 
 app.Run();

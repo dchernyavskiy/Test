@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Test.Exceptions;
+using Test.Helpers;
 using Test.Services.Contracts;
 
 namespace Test.Controllers;
@@ -31,5 +33,34 @@ public class FolderController : Controller
             _logger.LogError("Failed to find folder. Error message: " + e.Message);
             return View("Error");
         }
+    }
+
+    public async Task<IActionResult> Parents()
+    {
+        return View(await _folderService.GetAllParentFoldersAsync());
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> ImportFromOs()
+    {
+        await _folderService.ImportFromOS();
+        return View("Error");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ImportFromFile(IFormFile jsonFile)
+    {
+        var json = await JsonHelper.ExtractJson(jsonFile);
+        await _folderService.ImportFromFile(json);
+        return View("Error");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Export()
+    {
+        var content = Encoding.UTF8.GetBytes(await _folderService.ExportToFileAsync());
+        var type = "text/json";
+        var name = "folders.json";
+        return File(content, type, name);
     }
 }
