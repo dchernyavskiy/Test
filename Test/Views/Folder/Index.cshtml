@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@model Folder
+
+@{
+    ViewBag.Title = "title";
+    Layout = null;
+}
+
+<style>
+    .flex{
+    display: flex;
+    }
+    .flex-column{
+    flex-direction: column;
+    }
+</style>
+
+<h1>@Model!.Name</h1>
+<div class="flex flex-column ">
+    @foreach (var folder in Model.Children)
+    {
+        <a href="@Context.Request.GetDisplayUrl()/@folder.Name">@folder.Name</a>
+    }
+</div>
+
+<form method="post" enctype="multipart/form-data"  asp-controller="Folder" asp-action="ImportFromFile">
+    <input id="jsonFile" type="file" name="jsonFile"  />
+    <button type="submit">Import From File</button>
+</form>
+
+<form method="post" enctype="multipart/form-data"  asp-controller="Folder" asp-action="ImportFromOs">
+    <button type="submit">Import From OS</button>
+</form>
+
+<form method="post" asp-controller="Folder" asp-action="Export">
+    <button type="submit">Export To File</button>
+</form>
+
