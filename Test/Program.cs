@@ -20,10 +20,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Services.AddControllersWithViews()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-    });
+    .AddNewtonsoftJson(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration(nameof(PostgresOptions));
 builder.Services.AddSingleton<PostgresOptions>(x => x.GetRequiredService<IOptions<PostgresOptions>>().Value);
 builder.Services.AddDbContext<ITestDbContext, TestDbContext>((sp, options) =>
@@ -51,16 +48,15 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-else if (!app.Environment.IsEnvironment("Test"))
-{
-    using var scope = app.Services.CreateScope();
-    var seeders = scope.ServiceProvider.GetServices<IDataSeeder>();
 
-    foreach (var seeder in seeders)
-    {
-        await seeder.SeedAllAsync();
-    }
+using var scope = app.Services.CreateScope();
+var seeders = scope.ServiceProvider.GetServices<IDataSeeder>();
+
+foreach (var seeder in seeders)
+{
+    await seeder.SeedAllAsync();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
